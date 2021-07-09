@@ -1,11 +1,14 @@
-from datetime import datetime
+import datetime
 from service.db import db
 
 
 class User(db.Model):
+    """
+    Class representing User model.
+    """
     __tablename__ = 'user'
     id = db.Column(db.String(50), primary_key=True)
-    username = db.Column(db.String(50), nullable=False)
+    username = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
     last_login = db.Column(db.DateTime)
     last_action = db.Column(db.DateTime)
@@ -18,20 +21,46 @@ class User(db.Model):
             self.id = id
             self.username = username
             self.password = password
-            current_time = datetime.now()
+            current_time = datetime.datetime.utcnow()
             self.last_action = current_time
             self.last_login = current_time
         else:
             raise ValueError
 
     def like_post(self, post_id):
+        """
+        Like post
+        """
         like = Like(self.id, post_id)
         db.session.add(like)
+        db.session.commit()
 
     def unlike_post(self, post_id):
+        """
+        Unlike post
+        """
         Like.query.filter_by(author_id=self.id, post_id=post_id).delete()
+        db.session.commit()
+
+    def update_last_action(self):
+        """
+        Update last_action
+        """
+        self.last_action = datetime.datetime.utcnow()
+        db.session.commit()
+
+    def update_last_login(self):
+        """
+        Update last_login
+        """
+        self.last_login = datetime.datetime.utcnow()
+        db.session.commit()
+
 
 class Post(db.Model):
+    """
+    Class representing Post model.
+    """
     __tablename__ = 'post'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(250), nullable=False)
@@ -52,6 +81,9 @@ class Post(db.Model):
 
 
 class Like(db.Model):
+    """
+    Class representing Like model.
+    """
     __tablename__ = 'like'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
@@ -63,7 +95,7 @@ class Like(db.Model):
         if author_id and post_id:
             self.author_id = author_id
             self.post_id = post_id
-            self.date = datetime.now()
+            self.date = datetime.datetime.utcnow()
         else:
             raise ValueError
     

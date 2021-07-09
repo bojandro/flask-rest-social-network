@@ -75,8 +75,6 @@ TOKEN_EXPIRATION_TIME = 20 # Time after which token will expire
 
 ## Sending requests
 
-<br>
-
 ### Actual features
 
 To sign up (create new user), send data in ```json``` format to ```/signup``` with ```POST``` request:

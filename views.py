@@ -9,7 +9,7 @@ from models.models import User, Post, Like
 
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
-from config import SECRET_KEY
+from config import SECRET_KEY, TOKEN_EXPIRATION_TIME
 
 
 main_blueprint = Blueprint('views', __name__)
@@ -103,7 +103,7 @@ def login():
     
     if check_password_hash(user.password, auth.password):
         token = jwt.encode({'id': user.id,
-                            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=20)},
+                            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=TOKEN_EXPIRATION_TIME)},
                            SECRET_KEY)
 
         return jsonify({'token': token.decode('UTF-8')})
@@ -118,6 +118,7 @@ def get_user_posts(current_user):
     Get a list of specified user's posts 
     """
     posts = Post.query.filter_by(author_id=current_user.id).all()
+
     output = []
     for post in posts:
         post_data = {}
@@ -126,6 +127,7 @@ def get_user_posts(current_user):
         post_data['text'] = post.text
         post_data['liked_by'] = str(post.liked_by.all())
         output.append(post_data)
+
     return jsonify({'posts': output})
 
 # Function exists for the testing purposes

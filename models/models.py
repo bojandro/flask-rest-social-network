@@ -76,7 +76,6 @@ class Post(db.Model):
             raise ValueError
 
     def is_liked(self, user_id):
-        print(str(self.liked_by.all()))
         return user_id in str(self.liked_by.all())
 
 

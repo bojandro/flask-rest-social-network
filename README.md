@@ -9,7 +9,7 @@ Simple Flask REST API that provides following features:
 - post like
 - post unlike
 - analytics about how many likes was made. API returns analytics aggregated by day.
-- last login time and when he made a last request to the service.
+- last login time and when user made a last request to the service.
 
 Database used in this project is ```MySQL```, its installation will not be explained here.
 

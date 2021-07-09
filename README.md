@@ -61,7 +61,7 @@ To run application (Ubuntu):
 ```
 <br>
 
-To change configuration variables, edit ```configuration.py``` file in root:
+To change configuration variables, edit ```config.py``` file in root:
 ```python
 db_username = 'name' # Database username
 db_password = 'pass' # Database passsword

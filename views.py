@@ -32,7 +32,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, SECRET_KEY)
         except jwt.ExpiredSignatureError:
-            return jsonify({"message": "Token expired, log in again!"})
+            return jsonify({"message": "Token expired, log in again!"}), 401
 
         current_user = User.query.filter_by(id=data['id']).first()
 
@@ -71,14 +71,18 @@ def create_user():
     """
     data = request.get_json()
 
+    username=data['username']
+    if User.query.filter_by(username=username).first():
+        return jsonify({'message': 'User already exists'}), 409
+
     hashed_password = generate_password_hash(data['password'], method='sha256')
     id = str(uuid.uuid4())
 
-    new_user = User(id=id, username=data['username'], password=hashed_password)
+    new_user = User(id=id, username=username, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({'message': 'New user created!'})
+    return jsonify({'username': username}), 201
 
 @main_blueprint.route('/login')
 def login():
@@ -128,7 +132,7 @@ def get_user_posts(current_user):
         post_data['liked_by'] = str(post.liked_by.all())
         output.append(post_data)
 
-    return jsonify({'posts': output})
+    return jsonify({'posts': output}), 200
 
 # Function exists for the testing purposes
 @main_blueprint.route('/posts', methods=['GET'])
@@ -147,7 +151,7 @@ def get_all_posts():
         post_data['liked_by'] = str(post.liked_by.all())
         output.append(post_data)
 
-    return jsonify({'posts': output})
+    return jsonify({'posts': output}), 200
 
 @main_blueprint.route('/post', methods=['POST'])
 @token_required
@@ -161,7 +165,7 @@ def create_post(current_user):
     db.session.add(new_post)
     db.session.commit()
 
-    return jsonify({'message': "Post created!"})
+    return jsonify({'text': new_post.text}), 201
 
 @main_blueprint.route('/<post_id>/like', methods=['POST'])
 @token_required
@@ -175,13 +179,13 @@ def like_action(current_user, post_id):
         if not post.is_liked(current_user.id):
             User.query.filter_by(id=current_user.id).first() \
                 .like_post(post_id)
-            return jsonify({'message': "Post liked!"})
+            return jsonify({'message': "Post liked!"}), 200
         else:
             User.query.filter_by(id=current_user.id).first() \
                 .unlike_post(post_id)
-            return jsonify({'message': "Post unliked!"})
+            return jsonify({'message': "Post unliked!"}), 200
 
-    return jsonify({'message': "Invalid post!"})
+    return jsonify({'message': "Invalid post!"}), 404
 
 @main_blueprint.route('/analytics', methods=['GET'])
 def analytics():
@@ -203,4 +207,4 @@ def analytics():
         like_data['like_count'] = date[1]
         output.append(like_data)
 
-    return jsonify({'analytics': output})
+    return jsonify({'analytics': output}), 200

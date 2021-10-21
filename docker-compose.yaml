@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/posgresql/data/
+    environment:
+      POSTGRES_DB: 'flask_sn_db'
+      POSTGRES_USER: 'admin'
+      POSTGRES_PASSWORD: '1111'
+    ports:
+      - "5432:5432"
+
+  flask:
+    container_name: "flask_app"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 app.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+volumes: 
+  postgres_data:

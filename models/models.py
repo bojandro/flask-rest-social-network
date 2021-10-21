@@ -97,6 +97,6 @@ class Like(db.Model):
             self.date = datetime.datetime.utcnow()
         else:
             raise ValueError
-    
+
     def __repr__(self):
         return self.author_id

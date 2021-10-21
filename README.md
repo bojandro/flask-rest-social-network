@@ -11,7 +11,7 @@ Simple Flask REST API that provides following features:
 - analytics about how many likes was made. API returns analytics aggregated by day.
 - last login time and when user made a last request to the service.
 
-Database used in this project is ```MySQL```, its installation will not be explained here.
+Database used in this project is ```Postgres```.
 
 <br>
 
@@ -26,50 +26,34 @@ Database used in this project is ```MySQL```, its installation will not be expla
 ├── requirements.txt
 ├── service
 │   └── db.py
+├── docker-compose.yml
+├── Dockerfile
 └── views.py
 ```
 
 <br>
 
-## Installation
-
-Create virtual environment (Ubuntu):
-```shell
-$ python3 -m venv env
-```
-<br>
-
-Start using virtual environment:
-
-```shell
-$ source env/bin/activate
-```
-<br>
-
-Install required packages:
-
-```shell
-(env) $ pip install -r requirements.txt
-```
-<br>
-
 ## Running application
 
-To run application (Ubuntu):
+Application is dockerized, so to run just type:
 ```shell
-(env) $ python3 app.py
+docker-compose up --build
 ```
+
 <br>
 
 To change configuration variables, edit ```config.py``` file in root:
 ```python
-db_username = 'name' # Database username
-db_password = 'pass' # Database passsword
-CONNECTOR = 'mysql+pymysql' # Connector to reach database
 SECRET_KEY = 'e8=$#io8@o5cuo=$d7q4=n!viw8b!sj3g=ljo08s0_7ytn073l' # Secret key
-DATABASE = 'flask_sn_app_db' # Database name
-LINK = 'localhost' # Link
 TOKEN_EXPIRATION_TIME = 20 # Time after which token will expire
+
+POSTGRES_USER = 'admin'
+POSTGRES_PASSWORD = '1111'
+POSTGRES_HOST = 'postgres'
+POSTGRES_DB = 'flask_sn_db'
+POSTGRES_PORT = '5432'
+
+DATABASE_CONNECTION_URI = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}'
 ```
 <br>
 
@@ -77,7 +61,7 @@ TOKEN_EXPIRATION_TIME = 20 # Time after which token will expire
 
 ### Actual features
 
-To sign up (create new user), send data in ```json``` format to ```/signup``` with ```POST``` request:
+To sign up (create new user), send ```POST``` request with the following ```json``` data to ```/signup```:
 ```json
 {
     "username": "Dan",
@@ -90,7 +74,7 @@ To sign up (create new user), send data in ```json``` format to ```/signup``` wi
 Response should be like this:
 ```json
 {
-    "message": "New user created!"
+    "username": "Dan"
 }
 ```
 
@@ -105,7 +89,7 @@ After successfully logging in, token should be present in a response:
 
 <br>
 
-Token should be passed with request in ```Headers``` with ```x-access-token``` key.
+Token should be passed with request in Headers with ```x-access-token``` key.
 Token will work for 20 minutes by default (can be changed in ```config.py```).
 With this token, you can perform actions, such as:
 
@@ -115,7 +99,7 @@ With this token, you can perform actions, such as:
 
 <br>
 
-To create new post, send ```POST``` request with data in ```json``` format to ```/post```:
+To create new post, send ```POST``` request with the following data in ```json``` format to ```/post```:
 ```json
 {
     "text": "Bananas are cool!"
@@ -124,7 +108,7 @@ To create new post, send ```POST``` request with data in ```json``` format to ``
 
 <br>
 
-Note: responses are not listed here, they are pretty self-explanatory.
+> Note: responses are not listed here, they are pretty self-explanatory.
 
 <br>
 
@@ -139,7 +123,18 @@ To get a list of user's posts, send ```GET``` request to ```/post```.
 
 To get analytics on how many likes were made aggregated by day, send ```GET``` request to ```/analytics?date_from=2021-07-10&date_to=2021-07-11```, where ```date_from``` and ```date_to``` mean period, for which analytics should be made.
 
-<br>
+Response should be like this:
+```json
+{
+    "analytics": [
+        {
+            "date": "Thu, 21 Oct 2021 00:00:00 GMT",
+            "like_count": 1
+        }
+    ]
+}
+```
+
 <br>
 
 ### Features for the testing purposes
@@ -156,10 +151,3 @@ To get list of all posts, send ```GET``` request to ```/posts```.
 
 <br>
 <br>
-
-## Reference
-
-Official website
-- [Flask](https://flask.palletsprojects.com)
-- [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com)
-- [MySQL](https://www.mysql.com/)
